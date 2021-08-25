@@ -1,4 +1,8 @@
+
+## Competitive Landscape - mySQL Database creation
+
 # dictionary with the schools evaluated in this project
+
 
 schools = {   
 'ironhack' : 10828,
@@ -51,9 +55,6 @@ comments.rename(columns={'id': 'comment_id'}, inplace=True)
 comments
 
 
-
-#importing more libraries
-
 # function to get the schools information
 def get_school_info(school, school_id):
     url = 'https://www.switchup.org/chimera/v1/bootcamp-data?mainTemplate=bootcamp-data%2Fdescription&path=%2Fbootcamps%2F'+ str(school) + '&isDataTarget=false&bootcampId='+ str(school_id) + '&logoTag=logo&truncationLength=250&readMoreOmission=...&readMoreText=Read%20More&readLessText=Read%20Less'
@@ -104,10 +105,6 @@ for school, id in schools.items():
     schools_list.append(d)
     
     
-#give location list    
-locations_list
-
-
 #locations
 locations = pd.concat(locations_list)
 locations.rename(columns={'id': 'location_id','country.id': 'country_id','country.name':'country_name',
@@ -126,10 +123,12 @@ badges = pd.concat(badges_list)
 badges['schoolbadges_id'] = range(1, len(badges) + 1)
 badges
 
-
+#schools
 schools = pd.concat(schools_list)
 schools.head()
 
+
+## Creating our database in mySQL
 
 
 #establish connection
@@ -210,6 +209,8 @@ cursor.execute(query)
 query = ("""ALTER TABLE competitive_landscape.comments ADD FOREIGN KEY (school_id) REFERENCES competitive_landscape.schools (school_id);""")
 cursor.execute(query)
 
+
+
 #CREATING ADDITIONAL TABLE WITH INFORMATION REGARDING EACH COUNTRY
 country_data = pd.read_csv('country_data.csv')
 country_data
@@ -229,12 +230,8 @@ condition = country_data[((country_data['Series Name'] != 'Population, total') &
                           (country_data['Series Name'] != 'Mobile cellular subscriptions (per 100 people)') &
                           (country_data['Series Name'] != 'Individuals using the Internet (% of population)') & 
                           (country_data['Series Name'] != 'High-technology exports (% of manufactured exports)'))]
-condition
 
 country_data_final = country_data.drop(condition.index, axis=0) # Step 2
-
-country_data_final
-
 
 #Lets rename de columns (mysql friendly)
 country_data_final.rename(columns={'Country Name': 'country_name','Series Name': 'indicator',
@@ -254,3 +251,4 @@ country_data_final.to_sql('country_data', con = engine, if_exists = 'append', ch
 #Add Primary key in country_data table
 query = ("""ALTER TABLE competitive_landscape.country_data ADD PRIMARY KEY(count_indicator_id);""")
 cursor.execute(query)
+
